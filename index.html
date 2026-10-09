@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kymppitonni</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1b1b1f;--card:#fff;--mut:#6b6b75;--ac:#e8590c;--ok:#2f9e44;--no:#e03131;--bd:#e5e5df;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--fg:#f1f1f3;--card:#222227;--mut:#9a9aa5;--bd:#34343b}}
+:root[data-theme="dark"]{--bg:#17171a;--fg:#f1f1f3;--card:#222227;--mut:#9a9aa5;--bd:#34343b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{margin:8px 0 16px;font-size:28px}h2{margin:0 0 8px;font-size:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin:0 0 12px}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:14px 18px;background:var(--ac);color:#fff;width:100%;margin-top:8px;cursor:pointer}
+button.alt{background:var(--bd);color:var(--fg)}button.ok{background:var(--ok)}button.no{background:var(--no)}button:disabled{opacity:.4}
+input{font:inherit;width:100%;padding:14px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--fg)}
+.big{font-size:72px;font-weight:800;letter-spacing:.12em;text-align:center}
+.clue{font-size:28px;font-weight:700;margin:12px 0}
+.badge{display:inline-block;background:var(--ac);color:#fff;border-radius:999px;padding:4px 14px;font-weight:800}
+ul{list-style:none;margin:0;padding:0}li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}li.me{font-weight:700}
+.row{display:flex;gap:8px;justify-content:space-between;align-items:center}.row button{margin-top:8px}
+.mut{color:var(--mut)}.c{text-align:center}.err{color:var(--no)}
+.qr{background:#fff;padding:12px;border-radius:12px;max-width:240px;margin:12px auto}.qr svg{width:100%;height:auto;display:block}
+.big2{font-size:44px;font-weight:800;text-align:center;margin:12px 0;word-break:break-word}
+.dot{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:12px;width:10px;height:10px;border-radius:50%;background:var(--no)}.dot.on{background:var(--ok)}
+</style></head><body>
+<main id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const IT="sauna|Löylyä;kahvi|Suomalaisten juoma;joulupukki|Korvatunturi;lumiukko|Talven veistos;kalastaja|Onkii;koulu|Siellä oppii;kirja|Sivuja ja kansia;juna|Raiteilla;lentokone|Taivaalla;polkupyörä|Kaksi pyörää;mökki|Kesänviettopaikka;järvi|Tuhat niitä;metsä|Sieniä ja marjoja;sateenkaari|Sade ja aurinko;ukkonen|Jyrisee;lumi|Talven valkoinen;tuli|Nuotiossa;silta|Yli joen;kauppa|Ostoksille;kirkko|Kellot soivat;linna|Kuninkaan koti;museo|Vanhoja esineitä;elokuva|Popcornia;kitara|Kielet;piano|Mustat ja valkoiset;shakki|Kuningas ja kuningatar laudalla;jääkiekko|Kiekko;hiihto|Sauvat ja sukset;mitali|Kultaa, hopeaa, pronssia;kello|Tikittää;peili|Näet itsesi;lamppu|Valo;ikkuna|Lasi seinässä;avain|Lukon kaveri;sänky|Nukkumapaikka;peitto|Lämmin yöllä;jääkaappi|Kylmä kaappi;uuni|Leipä kypsyy;veitsi|Terä;haarukka|Lusikan ja veitsen kumppani;pullo|Sisältää nesteen;leipä|Voileivän pohja;juusto|Reikäinen;muna|Keltuainen;peruna|Mukula;porkkana|Oranssi;sipuli|Itkettää;omena|Newton;banaani|Keltainen;mansikka|Kesäkuun marja;suklaa|Kaakao;jäätelö|Kesäherkku;pulla|Kahvin kanssa;kakku|Synttäreillä;pizza|Napolilainen;makkara|Grillissä;keitto|Lusikalla;puuro|Aamuruoka;sima|Vapun juoma;koira|Haukkuu;kissa|Naukuu;hevonen|Ratsu;lehmä|Muu;lammas|Villa;kana|Muna tulee siltä;kettu|Ovela;susi|Ulvoo;karhu|Talvi unessa;hirvi|Metsän kuningas;orava|Pähkinänkaluaja;siili|Piikikäs;pöllö|Huhuilee yöllä;joutsen|Kansallislintu;hylje|Evät ja viikset;valas|Suuri meressä;hai|Hampaat merellä;krokotiili|Suuri suu joessa;kilpikonna|Hidas;käärme|Sihisee;sammakko|Prinssi;perhonen|Toukasta kehittyy;mehiläinen|Hunajaa;muurahainen|Kekoon;hämähäkki|Verkko;opettaja|Luokan edessä;lääkäri|Vastaanotolla;poliisi|Lain valvoja;palomies|Sammuttaa;kokki|Keittiön mestari;pilotti|Ohjaamossa;kirjailija|Kirjoittaa romaaneja;kuningas|Kruunu päässä;prinsessa|Satuhahmo kruunussa;noita|Luudalla;keiju|Peter Panin kaveri;peikko|Sadun otus;lohikäärme|Syöksee tulta;robotti|Metallinen apulainen;astronautti|Avaruuteen;merirosvo|Silmälappu;aave|Huuuu;rakkaus|Sydän;unelma|Yöllä nähdään;joulu|Tonttuja ja lahjoja;vappu|Ylioppilaslakki;juhannus|Kokko;häät|Sormus ja valkoinen mekko;reppu|Selässä;teltta|Yöpymispaikka retkellä;kompassi|Osoittaa pohjoiseen;kartta|Reitti paperilla;aarre|Merkitty ruksilla;kruunu|Päähine;miekka|Terävä ase;raketti|Lähtölaskenta;tietokone|Näppäimistö;puhelin|Soi;televisio|Kaukosäädin;kamera|Ottaa kuvia;hammasharja|Aamuin illoin;sateenvarjo|Suojaa sateelta;lapaset|Käsiin talvella;saappaat|Jalkaan lätäköllä;hattu|Päähän;sormus|Sormeen;silmälasit|Nenällä;vitsi|Naurattaa;arvoitus|Mikä se on?".split(";").map(x=>x.split("|"));
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function ord(s,len){const a=Array.from({length:len},(_,i)=>i);let x=(s>>>0)||1;const r=()=>{x=x+0x6D2B79F5|0;let t=Math.imul(x^x>>>15,1|x);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let R=null,room=null,code="",role="",step="home",msg="",mine={},myV={},ckq=-2,lastR=-1,showAll=false;
+const me={id:ls.get("kt_id")||"p"+Math.random().toString(36).slice(2,6),name:ls.get("kt_name")||""};
+ls.set("kt_id",me.id);
+const draft={cd:(location.hash.match(/\d{3}/)||[""])[0],nm:me.name,ans:""};
+
+const P=()=>room?room.peers():[];
+const gs=()=>{const h=P().find(p=>p.presence.role==="h");return h?h.presence:null};
+const checker=()=>P().filter(p=>p.presence.role==="c").sort((a,b)=>a.peer<b.peer?-1:1)[0];
+function players(){const m={};P().filter(p=>p.presence.role==="p"&&p.presence.id).forEach(p=>{m[p.presence.id]=p.presence});return m}
+const item=g=>IT[ord(g.seed,IT.length)[g.r%IT.length]]||["",""];
+const word=g=>item(g)[0],clueOf=g=>item(g)[1];
+const T=g=>Math.min(g.n||10,IT.length);
+
+/* Pisteytys: mitä harvempi arvaa oikein, sitä enemmän pisteitä oikein arvanneille (10 → 1).
+   Jos kaikki arvaavat oikein, jokainen saa vain 1 p. Jos kukaan ei arvaa, ei pisteitä. */
+function scores(){
+ const g=gs(),E={out:{},gu:[],ans:[],done:false,res:null};if(!g)return E;
+ const pl=players(),out={};
+ for(const id in g.base||{})out[id]={n:g.base[id][1],s:g.base[id][0],here:false,d:0};
+ for(const id in pl){const p=pl[id],o=out[id]||(out[id]={s:0,d:0});o.n=p.name;o.here=true;if(p.q===g.r&&p.ans!=null)o.ans=p.ans}
+ const ck=checker(),v=ck&&ck.presence.q===g.r?ck.presence.v||{}:{};
+ const gu=Object.keys(out).filter(id=>out[id].here),ans=gu.filter(id=>out[id].ans!=null);
+ ans.forEach(id=>{if(v[id]!=null)out[id].vd=v[id]});
+ const done=g.phase==="check"&&ans.every(id=>out[id].vd!=null);let res=null;
+ if(done){const G=gu.length,c=ans.filter(id=>out[id].vd===1).length;
+  const p=c===0?0:c>=G?1:Math.max(1,Math.round(10*(G-c)/(G-1)));
+  ans.forEach(id=>{if(out[id].vd===1)out[id].d=p});res={G,c,p}}
+ for(const id in out)out[id].total=out[id].s+out[id].d;
+ return{out,gu,ans,done,res}}
+function board(){return Object.entries(scores().out).sort((a,b)=>b[1].total-a[1].total).map(([id,o],i)=>`<li class="${id===me.id?"me":""}"><span>${i+1}. ${esc(o.n||"?")}${o.here?"":" (poissa)"}</span><b>${o.total} p</b></li>`).join("")}
+
+async function enter(c){
+ if(!R){msg="Reaaliaikayhteys ei ole käytettävissä. Avaa sivu kirjautuneena Claudessa.";return false}
+ try{room=await R.join("kt-"+c);code=c;room.onPeers(()=>{auto();render()});room.onConnection(()=>render());return true}
+ catch(e){room=null;msg="Huoneeseen liittyminen epäonnistui.";return false}}
+async function createGame(){
+ for(let i=0;i<4;i++){
+  const c=String(100+Math.floor(Math.random()*900));
+  if(!await enter(c))return render();
+  await room.presence({role:"h",phase:"lobby",r:0,n:10,base:{},seed:Math.floor(Math.random()*1e9)});
+  await new Promise(r=>setTimeout(r,1500));
+  if(!room.peers().some(p=>p.presence.role==="h"&&!p.isMe)){role="h";step="game";msg="";return render()}
+  await room.leave();room=null}
+ msg="Koodin luonti epäonnistui, yritä uudelleen.";render()}
+function auto(){
+ if(role!=="h")return;const g=gs();if(!g||g.phase!=="guess")return;
+ const s=scores();if(s.gu.length&&s.gu.every(id=>s.out[id].ans!=null))room.presence({phase:"check"})}
+
+const M=()=>msg?`<p class="err">${esc(msg)}</p>`:"";
+function home(){return `<h1>Kymppitonni</h1><div class="card"><h2>Pelinjohtaja</h2><p class="mut">Tämän puhelimen näyttö näytetään kaikille (tv).</p><button data-a="host">Luo peli</button></div>
+<div class="card"><h2>Liity peliin</h2><input id="cd" inputmode="numeric" maxlength="3" placeholder="3-numeroinen koodi"><button data-a="join">Liity</button>${M()}</div>`}
+function roleV(){return `<h1>Peli ${esc(code)}</h1><div class="card"><input id="nm" maxlength="20" placeholder="Nimesi" autocomplete="off"><button data-a="pl">Liity pelaajaksi</button><button class="alt" data-a="ck">Liity tarkistajaksi</button>${M()}</div>`}
+function qrSvg(){try{const x=qrcode(0,"M");x.addData(location.href.split("#")[0]+"#"+code);x.make();return x.createSvgTag(4,0)}catch(e){return ""}}
+
+function hostV(){
+ const g=gs()||{phase:"lobby",r:0,n:10},S=scores(),ck=checker(),pl=Object.values(S.out).filter(o=>o.here);
+ let h=`<h1>Kymppitonni</h1>`;
+ if(g.phase==="lobby"){
+  h+=`<div class="card"><div class="mut c">Liity koodilla</div><div class="big">${esc(code)}</div><div class="qr">${qrSvg()}</div><div class="mut c">tai skannaa QR-koodi</div></div>
+<div class="card"><h2>Pelaajat (${pl.length})</h2><ul>${pl.map(o=>`<li>${esc(o.n)}</li>`).join("")||'<li class="mut">Ei vielä pelaajia (vähintään 2)</li>'}</ul>
+<p class="mut">Tarkistaja: ${ck?"yhdistetty ✓":"ei vielä – liity omalla puhelimella"}</p>
+<h2>Sanoja pelissä</h2><div class="row">${[5,10,20,40].map(k=>`<button class="${(g.n||10)===k?"":"alt"}" data-a="n" data-n="${k}">${k}</button>`).join("")}</div>
+<button data-a="start" ${pl.length>=2?"":"disabled"}>Aloita peli</button></div>
+<div class="card"><h2>Näin pelataan</h2><p class="mut">Ruudulle tulee vihje. Pelaajat kirjoittavat puhelimellaan, mikä salainen sana on kyseessä, tai vastaavat paperille. Tarkistaja merkitsee vastaukset. Mitä harvempi arvaa oikein, sitä enemmän pisteitä oikein arvanneille (10 → 1). Jos kaikki arvaavat oikein, jokainen saa vain 1 p.</p></div>`;
+ }else if(g.phase==="end"){h+=`<div class="card"><h2>🏆 Peli päättyi</h2><button class="alt" data-a="again">Uusi peli</button></div>`}
+ else{
+  h+=`<div class="card"><div class="row"><span class="mut">Sana ${g.r+1}/${T(g)}</span></div><p class="mut c">Vihje</p><p class="big2">${esc(clueOf(g))}</p>`;
+  if(g.phase==="guess")h+=`<p class="mut c">Vastanneet ${S.ans.length}/${S.gu.length}</p><ul>${S.gu.map(id=>`<li><span>${esc(S.out[id].n)}</span><span>${S.out[id].ans!=null?"✓":"…"}</span></li>`).join("")}</ul><button class="alt" data-a="check">Lopeta kierros</button><button class="alt" data-a="next">Ohita sana</button>`;
+  else{
+   h+=ck?"":'<p class="err">Tarkistaja ei ole yhdistettynä!</p>';
+   if(S.done){const r=S.res;h+=`<p class="c">Sana oli</p><p class="big2">${esc(word(g))}</p><p class="c">${r.c===0?"Kukaan ei arvannut!":r.c>=r.G?"Kaikki arvasivat – liian helppo!":r.c+"/"+r.G+" arvasi oikein"}</p>`}
+   else h+=`<p class="mut c">Tarkistaja merkitsee vastauksia…</p>`;
+   h+=`<ul>${S.gu.map(id=>{const o=S.out[id];return `<li><span>${esc(o.n)}: ${o.ans!=null?esc(o.ans):"—"}</span><b>${o.ans==null?"–":o.vd==null?"…":o.vd?"✓"+(S.done?" +"+o.d:""):"✗"}</b></li>`}).join("")}</ul>`;
+   h+=`<button data-a="next" ${S.done?"":"disabled"}>${g.r+1>=T(g)?"Lopputulokset":"Seuraava sana"}</button>`}
+  h+=`</div>`}
+ if(g.phase!=="lobby")h+=`<div class="card"><h2>Pisteet</h2><ul>${board()}</ul></div>`;
+ return h}
+
+function playV(){
+ const g=gs(),S=scores(),my=S.out[me.id]||{total:0};
+ let h=`<h1>Kymppitonni</h1><div class="card"><div class="row"><b>${esc(me.name)}</b><b>${my.total} p</b></div>`;
+ if(!g)h+=`<p class="mut">Odotetaan pelinjohtajaa…</p>`;
+ else if(g.phase==="lobby")h+=`<p>Olet mukana! Odotetaan pelin alkua…</p>`;
+ else if(g.phase==="end")h+=`<p class="clue">Peli päättyi</p><ul>${board()}</ul>`;
+ else if(g.phase==="guess"){
+  h+=`<p class="mut">Sana ${g.r+1}/${T(g)}</p><p>Katso vihje ruudulta.</p>`;
+  h+=mine.q===g.r?`<p>Vastauksesi <b>${esc(mine.ans)}</b> on lukittu. Odota muita…</p>`:`<input id="ans" maxlength="40" placeholder="Mikä sana?" autocomplete="off"><button data-a="lock">Lukitse vastaus</button><button class="alt" data-a="paper">📝 Vastasin paperille</button>`}
+ else{const o=S.out[me.id]||{};
+  h+=mine.q!==g.r?`<p>Et vastannut tähän sanaan.</p>`:o.vd==null?`<p>Vastauksesi: <b>${esc(mine.ans)}</b><br>Tarkistetaan…</p>`:o.vd?`<p class="clue" style="color:var(--ok)">✓ Oikein! ${S.done?"+"+o.d+" p":""}</p>`:`<p class="clue" style="color:var(--no)">✗ Väärin</p>`}
+ return h+"</div>"}
+
+function itemAt(g,i){return IT[ord(g.seed,IT.length)[i%IT.length]]||["",""]}
+function checkV(){
+ const g=gs();
+ if(g&&ckq!==g.r){ckq=g.r;myV={};room.presence({q:g.r,v:{}})}
+ let h=`<h1>Tarkistaja</h1>`;
+ if(!g||g.phase==="lobby")return h+`<div class="card"><p class="mut">Odotetaan pelin alkua…</p></div>`;
+ if(g.phase==="end")return h+`<div class="card"><h2>Peli päättyi</h2><ul>${board()}</ul></div>`;
+ const S=scores();
+ h+=`<div class="card"><span class="mut">Sana ${g.r+1}/${T(g)}</span><p class="mut c">Vihje</p><p class="big2">${esc(clueOf(g))}</p>${g.phase==="check"?`<p class="c">Oikea sana:</p><p class="big2">${esc(word(g))}</p>`:""}
+<button class="alt" data-a="allclues">${showAll?"Piilota kaikki vihjeet":"Näytä kaikki vihjeet"}</button>`;
+ if(showAll){h+=`<ul>${Array.from({length:T(g)},(_,i)=>{const it=itemAt(g,i),open=i<g.r||(i===g.r&&g.phase==="check");return `<li class="${i===g.r?"me":""}"><span>${i+1}. ${esc(it[1])}</span><span class="mut">${open?esc(it[0]):"•••"}</span></li>`}).join("")}</ul>`}
+ h+=`</div>`;
+ if(g.phase!=="check")return h+`<div class="card"><p class="mut">Odotetaan vastauksia… ${S.ans.length}/${S.gu.length} vastannut</p></div>`;
+ return h+`<div class="card"><h2>Merkitse vastaukset</h2>${S.ans.map(id=>{const o=S.out[id];return `<div style="margin-bottom:14px"><b>${esc(o.n)}</b>: ${esc(o.ans)}<div class="row"><button class="${myV[id]===1?"ok":"alt"}" data-a="mk" data-id="${esc(id)}" data-v="1">✓ Oikein</button><button class="${myV[id]===0?"no":"alt"}" data-a="mk" data-id="${esc(id)}" data-v="0">✗ Väärin</button></div></div>`}).join("")||'<p class="mut">Kukaan ei vastannut.</p>'}</div>`}
+
+function render(){
+ const ids=["cd","nm","ans"],fid=document.activeElement&&document.activeElement.id,g=gs();
+ if(g&&g.r!==lastR){lastR=g.r;draft.ans=""}
+ ids.forEach(i=>{const el=$("#"+i);if(el)draft[i]=el.value});
+ $("#app").innerHTML=`<div class="dot ${room&&room.connected()?"on":""}"></div>`+(step==="home"?home():step==="role"?roleV():role==="h"?hostV():role==="c"?checkV():playV());
+ ids.forEach(i=>{const el=$("#"+i);if(el)el.value=draft[i]||""});
+ if(fid&&ids.includes(fid)&&$("#"+fid))$("#"+fid).focus()}
+
+document.addEventListener("click",async e=>{
+ const b=e.target.closest("[data-a]");if(!b)return;
+ const a=b.dataset.a,g=gs(),set=p=>room.presence(p);
+ if(a==="host")return createGame();
+ if(a==="join"){const c=($("#cd").value||"").trim();if(!/^\d{3}$/.test(c)){msg="Anna 3-numeroinen koodi.";return render()}
+  if(await enter(c)){step="role";msg=""}return render()}
+ if(a==="pl"||a==="ck"){
+  const n=($("#nm").value||"").trim().slice(0,20);
+  if(a==="pl"&&!n){msg="Kirjoita nimesi.";return render()}
+  me.name=n;ls.set("kt_name",n);role=a==="pl"?"p":"c";msg="";
+  await set(role==="p"?{role,id:me.id,name:n}:{role,q:-1,v:{}});step="game";return render()}
+ if(a==="lock"||a==="paper"){const t=a==="paper"?"📝 Paperilla":($("#ans").value||"").trim().slice(0,40);
+  if(!t||!g||g.phase!=="guess")return;
+  mine={q:g.r,ans:t};draft.ans="";await set({q:g.r,ans:t});return render()}
+ if(a==="allclues"){showAll=!showAll;return render()}
+ if(a==="mk"){myV[b.dataset.id]=+b.dataset.v;await set({q:g.r,v:myV});return render()}
+ if(a==="n")return set({n:+b.dataset.n});
+ if(a==="start")return set({phase:"guess",r:0,base:{}});
+ if(a==="check")return set({phase:"check"});
+ if(a==="next"){const base={};for(const [id,o] of Object.entries(scores().out))base[id]=[o.total,o.n||"?"];
+  return set({base,r:g.r+1,phase:g.r+1>=T(g)?"end":"guess"})}
+ if(a==="again")location.reload()});
+
+render();
+if(window.claude&&claude.use)claude.use("room").then(r=>{R=r;if(!r){msg="Reaaliaikayhteys ei ole käytettävissä.";}render()}).catch(()=>{});
+</script></body></html>
