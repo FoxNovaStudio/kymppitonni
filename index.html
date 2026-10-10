@@ -87,7 +87,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const av=o=>o&&o.av?`<img class="av" src="${esc(o.av)}" alt="">`:`<span class="avl">${esc(((o&&o.n)||"?").slice(0,1).toUpperCase())}</span>`;
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 function ord(s,len){const a=Array.from({length:len},(_,i)=>i);let x=(s>>>0)||1;const r=()=>{x=x+0x6D2B79F5|0;let t=Math.imul(x^x>>>15,1|x);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-let R=null,room=null,code="",role="",step="home",msg="",mine={},myV={},ckq=-2,lastR=-1,showAll=false;
+let R=null,room=null,code="",role="",step="home",msg="",mine={},myV={},ckq=-2,lastR=-1,showAll=false,myCn=10,starting=false;
 const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
 const me={id:ss.get("kt_id")||"p"+Math.random().toString(36).slice(2,9),name:ls.get("kt_name")||""};
 ss.set("kt_id",me.id);
@@ -142,8 +142,14 @@ async function createGame(){
   if(!room.peers().some(p=>p.presence.role==="h"&&!p.isMe)){role="h";step="game";msg="";loadUsed().then(render);return render()}
   await room.leave();room=null}
  msg="Koodin luonti epäonnistui, yritä uudelleen.";render()}
+async function startGame(n){
+ if(starting)return;starting=true;
+ try{await loadUsed();const g=gs();await room.presence({phase:"guess",r:0,k:1,n:n||10,base:{},deck:buildDeck(g.seed)});await markUsed(word(gs()))}finally{starting=false}
+ render()}
 function auto(){
- if(role!=="h")return;const g=gs();if(!g||g.phase!=="guess")return;
+ if(role!=="h")return;const g=gs();if(!g)return;
+ if(g.phase==="lobby"){const c=checker();if(c&&c.presence.go===1&&!starting)startGame(c.presence.cn);return}
+ if(g.phase!=="guess")return;
  const s=scores();if(s.gu.length&&s.gu.every(id=>s.out[id].ans!=null))room.presence({phase:"check"})}
 
 const M=()=>msg?`<p class="err">${esc(msg)}</p>`:"";
@@ -162,15 +168,11 @@ function podium(arr){arr=arr||rankList();const top=arr.slice(0,3),rest=arr.slice
  return `<div class="pod">${order.map(col).join("")}</div>`+(rest.length?`<ul class="rest">${rest.map(o=>`<li><span>${av(o)}${o.rank}. ${esc(o.n||"?")}${o.here?"":" (poissa)"}</span><b>${o.total} p</b></li>`).join("")}</ul>`:"")}
 
 function hostV(){
- const g=gs()||{phase:"lobby",r:0,n:10,k:1},S=scores(),ck=checker(),pl=Object.values(S.out).filter(o=>o.here),k=g.k||1,it=item(g);
+ const g=gs()||{phase:"lobby",r:0,n:10,k:1},S=scores(),ck=checker(),k=g.k||1,it=item(g),np=Object.values(S.out).filter(o=>o.here).length;
  let h=`<h1>Kymppitonni</h1>`;
  if(g.phase==="lobby"){
-  h+=`<div class="card"><div class="mut c">Liity koodilla</div><div class="big">${esc(code)}</div><div class="qr">${qrSvg()}</div><div class="mut c">tai skannaa QR-koodi</div><p class="mut c" style="word-break:break-all;user-select:all">${esc(location.href.split("#")[0]+"#"+code)}</p></div>
-<div class="card"><h2>Pelaajat (${pl.length})</h2><ul>${pl.map(o=>`<li><span>${av(o)}${esc(o.n)}</span></li>`).join("")||'<li class="mut">Ei vielä pelaajia (vähintään 1)</li>'}</ul>
-<p class="mut">Tarkistaja: ${ck?"yhdistetty ✓":"ei vielä – liity omalla puhelimella"}</p>
-<h2>Sanoja pelissä</h2><div class="row">${[5,10,20,40,60].map(k=>`<button class="${(g.n||10)===k?"":"alt"}" data-a="n" data-n="${k}">${k}</button>`).join("")}</div>
-<button data-a="start" ${pl.length>=1?"":"disabled"}>Aloita peli</button>
-<p class="mut">Aiemmin käytettyjä sanoja: ${usedList.length}/${IT.length}. Ne tulevat uudelleen vasta kun uudet on käyty läpi.${dbMsg?" "+esc(dbMsg):""}</p>${usedList.length?'<button class="alt" data-a="resethist">Nollaa käytetyt sanat</button>':""}</div>
+  h+=`<div class="card"><div class="mut c">Liity koodilla</div><div class="big">${esc(code)}</div><div class="qr">${qrSvg()}</div><div class="mut c">tai skannaa QR-koodi</div></div>
+<div class="card c"><p>Pelaajia: <b>${np}</b></p><p class="mut">Tarkistaja: ${ck?"yhdistetty ✓ – hän aloittaa pelin":"odotetaan tarkistajaa…"}</p></div>
 <div class="card"><h2>Näin pelataan</h2><p class="mut">Jokaisesta sanasta paljastuu vihjeitä yksi kerrallaan. Ensimmäinen vihje on arvoltaan 10 p, sitten 8, 6, 4 ja 2 p. Kirjoita vastaus puhelimellasi tai vastaa paperille. Mitä aikaisemmin vastaat oikein, sitä enemmän pisteitä saat.</p></div>`;
  }else if(g.phase==="end"){h+=`<div class="card"><h2 class="c">🏆 Lopputulokset</h2>${podium()}<button class="alt" data-a="again">Uusi peli</button></div>`}
  else{
@@ -179,17 +181,15 @@ function hostV(){
    h+=`<p class="mut c">Vihje ${k}/5</p><p class="big2">${esc(it[k])}</p><p class="mut c">Vastanneet ${S.ans.length}/${S.gu.length}</p>`;
    if(k<5)h+=`<button data-a="clue">Seuraava vihje (${PTS[k]} p)</button>`;
    h+=`<button class="${k<5?"alt":""}" data-a="check">Tarkistus</button></div>`;
-   h+=`<div class="card"><h2>Pelaajat</h2><ul>${pl.map(o=>`<li><span>${av(o)}${esc(o.n)}</span><span>${o.ans!=null?"✓":"…"}</span></li>`).join("")}</ul></div>`;
    if(k>1)h+=`<div class="card"><h2>Aiemmat vihjeet</h2><ul>${it.slice(1,k).map((t,i)=>`<li><span>${esc(t)}</span><b>${PTS[i]} p</b></li>`).reverse().join("")}</ul></div>`;
   }else{
    h+=`<p class="c mut">Oikea vastaus</p><p class="ans">${esc(it[0])}</p>`;
    h+=`<ul>${it.slice(1,k+1).map((t,i)=>`<li><span>${esc(t)}</span><b>${PTS[i]} p</b></li>`).join("")}</ul>`;
    h+=ck?"":'<p class="err">Tarkistaja ei ole yhdistettynä!</p>';
    if(!S.done)h+=`<p class="mut c">Tarkistaja merkitsee vastauksia…</p>`;
-   h+=`<ul>${S.gu.map(id=>{const o=S.out[id];return `<li><span>${av(o)}${esc(o.n)}: ${o.ans!=null?esc(o.ans):"—"}${o.ans!=null?` <span class="mut">(${o.pts} p)</span>`:""}</span><b>${o.ans==null?"–":o.vd==null?"…":o.vd?"✓ +"+o.d:"✗"}</b></li>`}).join("")}</ul>`;
-   h+=`<button data-a="next" ${S.done?"":"disabled"}>${g.r+1>=T(g)?"Lopputulokset":"Seuraava sana"}</button></div>`}
+   h+=`<button data-a="next" ${S.done?"":"disabled"}>${g.r+1>=T(g)?"Lopputulokset":"Seuraava sana"}</button></div>`;
+   if(S.done)h+=`<div class="card"><h2>Pisteet</h2><ul>${board()}</ul></div>`}
  }
- if(g.phase!=="lobby"&&g.phase!=="end")h+=`<div class="card"><h2>Pisteet</h2><ul>${board()}</ul></div>`;
  return h}
 
 function playV(){
@@ -209,7 +209,12 @@ function checkV(){
  const g=gs();
  if(g&&ckq!==g.r){ckq=g.r;myV={};room.presence({q:g.r,v:{}})}
  let h=`<h1>Tarkistaja</h1>`;
- if(!g||g.phase==="lobby")return h+`<div class="card"><p class="mut">Odotetaan pelin alkua…</p></div>`;
+ if(!g)return h+`<div class="card"><p class="mut">Odotetaan pelinjohtajaa…</p></div>`;
+ if(g.phase==="lobby"){const S0=scores(),pl=Object.values(S0.out).filter(o=>o.here);
+  return h+`<div class="card"><h2>Pelin asetukset</h2><p class="mut">Sanoja pelissä</p><div class="row">${[5,10,20,40,60].map(k=>`<button class="${myCn===k?"":"alt"}" data-a="cn" data-n="${k}">${k}</button>`).join("")}</div>
+<p class="mut">Aiemmin käytettyjä sanoja: ${usedList.length}/${IT.length}. Ne tulevat uudelleen vasta kun uudet on käyty läpi.${dbMsg?" "+esc(dbMsg):""}</p>${usedList.length?'<button class="alt" data-a="resethist">Nollaa käytetyt sanat</button>':""}
+<h2>Pelaajat (${pl.length})</h2><ul>${pl.map(o=>`<li><span>${av(o)}${esc(o.n)}</span></li>`).join("")||'<li class="mut">Ei vielä pelaajia</li>'}</ul>
+<button data-a="cgo" ${pl.length>=1?"":"disabled"}>Aloita peli</button></div>`}
  if(g.phase==="end")return h+`<div class="card"><h2 class="c">🏆 Lopputulokset</h2>${podium()}</div>`;
  const S=scores(),it=item(g),k=g.k||1;
  h+=`<div class="card"><span class="mut">Sana ${g.r+1}/${T(g)}</span><p class="mut c">Vihje ${k}/5 (${PTS[k-1]} p)</p><p class="big2">${esc(it[k])}</p>${g.phase==="check"?`<p class="c">Oikea sana:</p><p class="big2">${esc(it[0])}</p>`:""}
@@ -239,12 +244,14 @@ document.addEventListener("click",async e=>{
   const n=($("#nm").value||"").trim().slice(0,20);
   if(a==="pl"&&!n){msg="Kirjoita nimesi.";return render()}
   me.name=n;ls.set("kt_name",n);role=a==="pl"?"p":"c";msg="";
-  await set(role==="p"?{role,id:me.id,name:n,...(me.av?{av:me.av}:{})}:{role,q:-1,v:{}});step="game";return render()}
+  await set(role==="p"?{role,id:me.id,name:n,...(me.av?{av:me.av}:{})}:{role,q:-1,v:{},cn:10});step="game";if(role==="c")loadUsed().then(render);return render()}
  if(a==="lock"||a==="paper"){const t=a==="paper"?"📝 Paperilla":($("#ans").value||"").trim().slice(0,40);
   if(!t||!g||g.phase!=="guess")return;
   const pt=PTS[(g.k||1)-1];mine={q:g.r,ans:t,pts:pt};draft.ans="";await set({q:g.r,ans:t,pts:pt});return render()}
  if(a==="allclues"){showAll=!showAll;return render()}
  if(a==="mk"){myV[b.dataset.id]=+b.dataset.v;await set({q:g.r,v:myV});return render()}
+ if(a==="cn"){myCn=+b.dataset.n;await set({cn:myCn});return render()}
+ if(a==="cgo"){await set({go:1});return render()}
  if(a==="n")return set({n:+b.dataset.n});
  if(a==="start"){await loadUsed();await set({phase:"guess",r:0,k:1,base:{},deck:buildDeck(g.seed)});await markUsed(word(gs()));return render()}
  if(a==="resethist"){usedList=[];await saveUsed();return render()}
